@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="15b9938a-7251-4d1b-aa45-6599a0662173" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://LIN24004003:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b395d2c2-4344-4e66-9214-4837dd7e33e5" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="mqFlow2" doc:id="ee77a888-3c7d-4b9c-b3d8-56a6e27521fd" >
+		<http:listener doc:name="Listener" doc:id="d81de868-1dae-4d23-90b8-53aacdfa4857" config-ref="HTTP_Listener_config" path="/jms"/>
+		<jms:publish doc:name="Publish" doc:id="bf888cde-dd17-4433-93c2-6589c1fc52d4" config-ref="JMS_Config" destination="Test1"/>
+	</flow>
+	<flow name="mqFlow" doc:id="f84c865a-a2a2-4d60-aff6-4a552bac8219" >
+		<jms:listener doc:name="On New Message" doc:id="3d649d45-3b19-4217-8397-3e0b29984612" config-ref="JMS_Config" destination="Test1" ackMode="MANUAL">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="aedb65d5-b22a-4445-bb88-8123cd257b1e" message="message1 #[payload]"/>
+	</flow>
+	<flow name="mqFlow1" doc:id="842f05a9-cada-44cc-b1b0-4e09f74b6714" >
+		<jms:listener doc:name="On New Message" doc:id="f7de9dff-ad49-4313-a871-76d8ee276acd" config-ref="JMS_Config" destination="Test1" ackMode="MANUAL">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="e9a6a71d-7b8a-441d-9c13-c5e3666505e3" message="Message 2 #[payload]"/>
+	</flow>
+	<flow name="mqFlow3" doc:id="38d87eef-5cca-47cc-9e4a-a161c75be60a" >
+		<jms:listener doc:name="On New Message" doc:id="eb73993e-bbb2-4eb5-a491-17d8a158ffdd" config-ref="JMS_Config" destination="ansari" ackMode="MANUAL" numberOfConsumers="1">
+			<jms:consumer-type >
+				<jms:topic-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="d94dd379-11a6-4997-9a67-f68043360177" message="message1 #[payload]"/>
+	</flow>
+	<flow name="mqFlow4" doc:id="0bb1ec8b-c715-4f5a-bf3f-eb8429ac8839" >
+		<jms:listener doc:name="On New Message" doc:id="461e7ca3-6db9-4578-9a57-ba530935f9d1" config-ref="JMS_Config" destination="ansari" ackMode="MANUAL" numberOfConsumers="1">
+			<jms:consumer-type >
+				<jms:topic-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="117670c7-f321-4aef-8c0a-16fa06e8727d" message="message2 #[payload]"/>
+	</flow>
+</mule>
